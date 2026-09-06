@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Financiero Personal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+  <div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Encabezado -->
+    <header class="flex justify-between items-center border-b border-slate-800 pb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-emerald-400">Dashboard Financiero</h1>
+        <p class="text-xs text-slate-400">Ingresos fijos: S/ 1,200.00 / mes</p>
+      </div>
+      <button onclick="resetData()" class="text-xs bg-rose-900/40 text-rose-300 px-3 py-1.5 rounded border border-rose-800 hover:bg-rose-800/60">Reiniciar</button>
+    </header>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400">Total Ahorrado</span>
+        <p id="totalSavings" class="text-xl font-bold text-emerald-400">S/ 0.00</p>
+      </div>
+      <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400">Gastos Registrados</span>
+        <p id="totalExpenses" class="text-xl font-bold text-rose-400">S/ 0.00</p>
+      </div>
+      <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400">Meta iPad Pro M1</span>
+        <p class="text-xl font-bold text-cyan-400">S/ 2,600</p>
+      </div>
+      <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+        <span class="text-xs text-slate-400">Progreso iPad</span>
+        <p id="targetProgress" class="text-xl font-bold text-amber-400">0%</p>
+      </div>
+    </div>
+
+    <!-- Barra de progreso para el iPad -->
+    <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700">
+      <div class="flex justify-between text-xs mb-2">
+        <span class="text-slate-300">Avance hacia el iPad Pro 11" M1</span>
+        <span id="targetText" class="text-emerald-400 font-semibold">S/ 0 / S/ 2,600</span>
+      </div>
+      <div class="w-full bg-slate-700 rounded-full h-3">
+        <div id="progressBar" class="bg-emerald-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Formularios y Gráfica -->
+    <div class="grid md:grid-cols-2 gap-6">
+      
+      <!-- Registro de Movimientos -->
+      <div class="bg-slate-800/80 p-5 rounded-xl border border-slate-700 space-y-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Registrar Movimiento</h2>
+        <div class="space-y-3">
+          <input id="descInput" type="text" placeholder="Concepto (ej. Ahorro quincena, Almuerzo)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+          <div class="grid grid-cols-2 gap-2">
+            <input id="amountInput" type="number" step="0.5" placeholder="Monto (S/)" class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <select id="typeInput" class="bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:outline-none">
+              <option value="saving">Ahorro (+)</option>
+              <option value="expense">Gasto (-)</option>
+            </select>
+          </div>
+          <button onclick="addEntry()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2.5 rounded-lg text-sm transition">Agregar Transacción</button>
+        </div>
+
+        <!-- Lista reciente -->
+        <h3 class="text-xs font-semibold text-slate-400 mt-4 uppercase">Últimos Registros</h3>
+        <div id="entriesList" class="space-y-2 max-h-48 overflow-y-auto text-sm pr-1"></div>
+      </div>
+
+      <!-- Gráfica de distribución -->
+      <div class="bg-slate-800/80 p-5 rounded-xl border border-slate-700 flex flex-col items-center justify-center">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-2 w-full text-left">Distribución Acumulada</h2>
+        <div class="w-60 h-60">
+          <canvas id="balanceChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Lista de deseos / Planes de compra -->
+    <div class="bg-slate-800/80 p-5 rounded-xl border border-slate-700">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-3">Planes de Compra y Prioridad</h2>
+      <div class="divide-y divide-slate-700 text-sm">
+        <div class="py-2.5 flex justify-between items-center">
+          <div>
+            <span class="font-medium text-emerald-300">iPad Pro 11" M1 + Pencil 2</span>
+            <p class="text-xs text-slate-400">Prioridad 1 · Cálculo y Navegación</p>
+          </div>
+          <span class="font-semibold text-slate-200">S/ 2,600</span>
+        </div>
+        <div class="py-2.5 flex justify-between items-center opacity-60">
+          <div>
+            <span class="font-medium text-slate-300">Silla ergonómica de oficina</span>
+            <p class="text-xs text-slate-400">Prioridad 2 · Salud lumbar trabajo remoto</p>
+          </div>
+          <span class="font-semibold text-slate-200">S/ 800</span>
+        </div>
+        <div class="py-2.5 flex justify-between items-center opacity-40">
+          <div>
+            <span class="font-medium text-slate-300">Honda Tornado 250</span>
+            <p class="text-xs text-slate-400">Prioridad 3 · Mediano/Largo plazo</p>
+          </div>
+          <span class="font-semibold text-slate-200">S/ 12,000</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const IPAD_GOAL = 2600;
+    let data = JSON.parse(localStorage.getItem('finanzas_data')) || { savings: 0, expenses: 0, entries: [] };
+    let chartInstance = null;
+
+    function initChart() {
+      const ctx = document.getElementById('balanceChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Ahorrado', 'Gastado'],
+          datasets: [{
+            data: [data.savings, data.expenses],
+            backgroundColor: ['#10b981', '#f43f5e'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#cbd5e1' } } }
+        }
+      });
+    }
+
+    function updateUI() {
+      document.getElementById('totalSavings').innerText = `S/ ${data.savings.toFixed(2)}`;
+      document.getElementById('totalExpenses').innerText = `S/ ${data.expenses.toFixed(2)}`;
+      
+      const progress = Math.min(100, (data.savings / IPAD_GOAL) * 100);
+      document.getElementById('progressBar').style.width = `${progress}%`;
+      document.getElementById('targetProgress').innerText = `${progress.toFixed(1)}%`;
+      document.getElementById('targetText').innerText = `S/ ${data.savings.toFixed(2)} / S/ ${IPAD_GOAL.toFixed(2)}`;
+
+      const list = document.getElementById('entriesList');
+      list.innerHTML = '';
+      [...data.entries].reverse().slice(0, 8).forEach(item => {
+        const isSaving = item.type === 'saving';
+        list.innerHTML += `
+          <div class="flex justify-between items-center p-2 rounded bg-slate-900 border border-slate-800">
+            <span class="text-slate-300">${item.desc}</span>
+            <span class="${isSaving ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
+              ${isSaving ? '+' : '-'} S/ ${item.amount.toFixed(2)}
+            </span>
+          </div>`;
+      });
+
+      if (chartInstance) {
+        chartInstance.data.datasets[0].data = [data.savings, data.expenses];
+        chartInstance.update();
+      }
+      localStorage.setItem('finanzas_data', JSON.stringify(data));
+    }
+
+    function addEntry() {
+      const desc = document.getElementById('descInput').value.trim();
+      const amount = parseFloat(document.getElementById('amountInput').value);
+      const type = document.getElementById('typeInput').value;
+
+      if (!desc || isNaN(amount) || amount <= 0) return;
+
+      if (type === 'saving') data.savings += amount;
+      else data.expenses += amount;
+
+      data.entries.push({ desc, amount, type, date: new Date().toISOString() });
+      document.getElementById('descInput').value = '';
+      document.getElementById('amountInput').value = '';
+      updateUI();
+    }
+
+    function resetData() {
+      if (confirm("¿Seguro que deseas reiniciar todos los datos?")) {
+        data = { savings: 0, expenses: 0, entries: [] };
+        updateUI();
+      }
+    }
+
+    window.onload = () => {
+      initChart();
+      updateUI();
+    };
+  </script>
+</body>
+</html>
