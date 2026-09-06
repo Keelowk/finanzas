@@ -3,200 +3,304 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control Financiero Personal</title>
+  <title>Control Financiero y Deudas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-3 md:p-8 font-sans">
-  <div class="max-w-4xl mx-auto space-y-6">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-3 md:p-6 font-sans">
+  <div class="max-w-4xl mx-auto space-y-5">
 
-    <!-- Encabezado -->
-    <header class="flex justify-between items-center border-b border-slate-800 pb-3">
+    <!-- Encabezado y Sueldo Quincenal -->
+    <header class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between gap-3">
       <div>
-        <h1 class="text-xl md:text-2xl font-bold text-emerald-400">Dashboard Financiero</h1>
-        <p class="text-xs text-slate-400">Sueldo mensual: S/ 1,200.00</p>
+        <h1 class="text-xl font-bold text-emerald-400">Panel Financiero Inteligente</h1>
+        <p class="text-xs text-slate-400" id="salaryDisplay">Ingreso quincenal: S/ 600.00 | Próximo pago: Día 15 y 30</p>
       </div>
-      <button onclick="resetAllData()" class="text-xs bg-rose-950/40 text-rose-400 px-3 py-1.5 rounded border border-rose-800 hover:bg-rose-900/60">Reiniciar</button>
+      <div class="flex gap-2">
+        <button onclick="openConfigModal()" class="text-xs bg-slate-800 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 hover:bg-slate-700">⚙️ Configurar Fechas y Sueldo</button>
+        <button onclick="resetData()" class="text-xs bg-rose-950/40 text-rose-400 px-3 py-2 rounded-xl border border-rose-800">Reiniciar</button>
+      </div>
     </header>
 
-    <!-- Métricas Clave -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
-        <span class="text-xs text-slate-400">Fondo iPad (Ahorros)</span>
-        <p id="totalSavings" class="text-lg md:text-xl font-bold text-emerald-400">S/ 0.00</p>
-        <span id="targetProgress" class="text-[11px] text-slate-500">0% de S/ 2,600</span>
+    <!-- Módulo Asistente Tipo IA (Diagnóstico Financiero) -->
+    <div class="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-cyan-950/40 border border-emerald-500/30 p-4 rounded-2xl space-y-2">
+      <div class="flex items-center gap-2">
+        <span class="text-base">🤖</span>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-emerald-300">Asistente Táctico</h2>
       </div>
+      <p id="aiAdvice" class="text-sm text-slate-200 leading-relaxed"></p>
+    </div>
 
-      <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
-        <span class="text-xs text-slate-400">Gastos Registrados</span>
-        <p id="totalExpenses" class="text-lg md:text-xl font-bold text-rose-400">S/ 0.00</p>
-        <span id="expenseCount" class="text-[11px] text-slate-500">0 transacciones</span>
+    <!-- Resumen de Liquidez Real (Saldos en cuentas) -->
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Liquidez Disponible en Cuentas</h2>
+        <span id="totalLiquidity" class="text-emerald-400 font-bold text-lg">S/ 0.00</span>
       </div>
-
-      <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
-        <span class="text-xs text-slate-400">Gastos Fijos / Mes</span>
-        <p id="totalFixedExpenses" class="text-lg md:text-xl font-bold text-amber-400">S/ 0.00</p>
-        <span class="text-[11px] text-slate-500">Obligatorios</span>
-      </div>
-
-      <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
-        <span class="text-xs text-slate-400">Deuda Tarjeta Crédito</span>
-        <p id="creditCardDebt" class="text-lg md:text-xl font-bold text-red-500">S/ 0.00</p>
-        <span class="text-[11px] text-slate-500">Pendiente por pagar</span>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[11px] text-purple-400 font-semibold block">Yape</span>
+          <input id="balYape" type="number" step="0.1" onchange="updateBalances()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[11px] text-blue-400 font-semibold block">BCP / SIP</span>
+          <input id="balSip" type="number" step="0.1" onchange="updateBalances()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[11px] text-lime-400 font-semibold block">Lemon</span>
+          <input id="balLemon" type="number" step="0.1" onchange="updateBalances()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[11px] text-cyan-400 font-semibold block">Ligo</span>
+          <input id="balLigo" type="number" step="0.1" onchange="updateBalances()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+        </div>
+        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 col-span-2 md:col-span-1">
+          <span class="text-[11px] text-rose-400 font-semibold block">Banco Nación</span>
+          <input id="balBn" type="number" step="0.1" onchange="updateBalances()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+        </div>
       </div>
     </div>
 
-    <!-- Progreso Meta iPad Pro -->
-    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-      <div class="flex justify-between text-xs mb-2">
-        <span class="text-slate-300 font-medium">Meta: iPad Pro 11" M1 (S/ 2,600)</span>
-        <span id="targetDetail" class="text-emerald-400 font-semibold">S/ 0 / S/ 2,600</span>
+    <!-- Módulos de Deuda: Tarjeta de Crédito y Crédito Yape -->
+    <div class="grid md:grid-cols-2 gap-4">
+
+      <!-- Tarjeta de Crédito -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-rose-400">Tarjeta de Crédito</h3>
+          <span id="tcDebtHeader" class="text-rose-400 font-bold text-base">S/ 0.00</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <span class="text-slate-400 block">Línea Total</span>
+            <input id="tcLimitInput" type="number" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-semibold text-white">
+          </div>
+          <div>
+            <span class="text-slate-400 block">Deuda Actual</span>
+            <input id="tcDebtInput" type="number" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-semibold text-white">
+          </div>
+          <div>
+            <span class="text-slate-400 block">Día de Cierre</span>
+            <input id="tcCloseDay" type="number" min="1" max="31" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
+          </div>
+          <div>
+            <span class="text-slate-400 block">Día Límite de Pago</span>
+            <input id="tcPayDay" type="number" min="1" max="31" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
+          </div>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-2">
+          <div id="tcBar" class="bg-rose-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+        <p id="tcStatusText" class="text-[11px] text-slate-400"></p>
       </div>
-      <div class="w-full bg-slate-800 rounded-full h-2.5">
-        <div id="progressBar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+
+      <!-- Crédito Yape -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Crédito Yape</h3>
+          <span id="yapeDebtHeader" class="text-purple-400 font-bold text-base">S/ 0.00</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <span class="text-slate-400 block">Deuda Total</span>
+            <input id="yapeDebtInput" type="number" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 font-semibold text-white">
+          </div>
+          <div>
+            <span class="text-slate-400 block">Cuotas Pagadas</span>
+            <input id="yapePaidMonths" type="number" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
+          </div>
+          <div>
+            <span class="text-slate-400 block">Cuotas Faltantes</span>
+            <input id="yapeRemainingMonths" type="number" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
+          </div>
+        </div>
+        <div class="text-xs">
+          <span class="text-slate-400 block">Día de Cobro en Yape</span>
+          <input id="yapePayDay" type="number" min="1" max="31" onchange="saveCreds()" class="w-full bg-slate-950 border border-slate-800 rounded p-1.5 text-white">
+        </div>
+        <p id="yapeStatusText" class="text-[11px] text-slate-400"></p>
       </div>
+
     </div>
 
-    <!-- Modos de Registro: Diario / Tarjeta / Gastos Fijos -->
-    <div class="grid md:grid-cols-2 gap-6">
+    <!-- Gastos Fijos y Registro Rápido -->
+    <div class="grid md:grid-cols-2 gap-4">
 
-      <!-- Columna Izquierda: Formularios -->
-      <div class="space-y-6">
+      <!-- Gastos Fijos -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-amber-400">Gastos Fijos Mensuales</h3>
+          <span id="totalFixedText" class="text-amber-400 font-bold">S/ 0.00</span>
+        </div>
+        <div class="flex gap-2">
+          <input id="fixedName" type="text" placeholder="Ej. Línea Claro, Spotify" class="w-2/3 bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
+          <input id="fixedAmount" type="number" placeholder="S/" class="w-1/3 bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
+        </div>
+        <button onclick="addFixedExpense()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-1.5 rounded-lg text-xs transition">Añadir Gasto Fijo</button>
+        <div id="fixedList" class="space-y-1 max-h-36 overflow-y-auto text-xs pr-1"></div>
+      </div>
 
-        <!-- Registro de Movimientos Diarios -->
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Registrar Movimiento</h2>
-          <input id="transDesc" type="text" placeholder="Concepto (ej. Pasaje, Almuerzo, Cobro extra)" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+      <!-- Registro Diario y Fondo iPad -->
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between text-xs mb-1.5">
+            <span class="text-slate-300 font-medium">Meta: iPad Pro 11" M1 (S/ 2,600)</span>
+            <span id="targetDetail" class="text-emerald-400 font-semibold">S/ 0 / S/ 2,600</span>
+          </div>
+          <div class="w-full bg-slate-800 rounded-full h-2">
+            <div id="progressBar" class="bg-emerald-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <input id="transDesc" type="text" placeholder="Gasto o ahorro diario..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
           <div class="grid grid-cols-2 gap-2">
-            <input id="transAmount" type="number" step="0.5" placeholder="Monto (S/)" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-            <select id="transType" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none">
-              <option value="saving">Ahorro (+)</option>
+            <input id="transAmount" type="number" step="0.5" placeholder="S/ Monto" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
+            <select id="transType" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:outline-none">
               <option value="expense">Gasto (-)</option>
+              <option value="saving">Ahorro iPad (+)</option>
             </select>
           </div>
-          <button onclick="addTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-lg text-sm transition">Agregar Registro</button>
+          <button onclick="addTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-1.5 rounded-lg text-xs transition">Registrar Movimiento</button>
         </div>
-
-        <!-- Gestión de Tarjeta de Crédito -->
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-red-400">Tarjeta de Crédito (TC)</h2>
-          <div class="grid grid-cols-2 gap-2">
-            <input id="tcAmount" type="number" step="0.5" placeholder="Monto (S/)" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:border-red-500">
-            <button onclick="updateCreditCard('charge')" class="bg-red-700 hover:bg-red-600 text-white text-xs font-semibold py-2 rounded-lg transition">+ Compra con TC</button>
-          </div>
-          <button onclick="updateCreditCard('pay')" class="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-semibold py-2 rounded-lg border border-slate-700 transition">Abonar / Pagar Deuda de TC</button>
-        </div>
-
-        <!-- Gastos Fijos Recurrentes -->
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-amber-400">Gastos Fijos Mensuales</h2>
-          <div class="flex gap-2">
-            <input id="fixedName" type="text" placeholder="Ej. Alquiler, Internet, Plan móvil" class="w-2/3 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none">
-            <input id="fixedAmount" type="number" placeholder="S/" class="w-1/3 bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none">
-          </div>
-          <button onclick="addFixedExpense()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-2 rounded-lg text-sm transition">Guardar Gasto Fijo</button>
-          <div id="fixedList" class="space-y-1 text-xs text-slate-300 pt-2"></div>
-        </div>
-
       </div>
 
-      <!-- Columna Derecha: Gráficas y Lista -->
-      <div class="space-y-6">
-        
-        <!-- Gráfica de Balance -->
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-col items-center">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-3 w-full text-left">Distribución Financiera</h2>
-          <div class="w-52 h-52">
-            <canvas id="balanceChart"></canvas>
-          </div>
-        </div>
+    </div>
 
-        <!-- Historial de Transacciones -->
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 mb-3">Últimas Transacciones</h2>
-          <div id="historyList" class="space-y-2 max-h-60 overflow-y-auto text-xs pr-1"></div>
-        </div>
-
-      </div>
-
+    <!-- Historial de Transacciones -->
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Últimos Movimientos</h3>
+      <div id="historyList" class="space-y-1.5 max-h-40 overflow-y-auto text-xs pr-1"></div>
     </div>
 
   </div>
 
+  <!-- Modal de Configuración de Quincena -->
+  <div id="configModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl max-w-sm w-full space-y-4">
+      <h3 class="font-bold text-sm text-slate-100">Configurar Ingresos</h3>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Monto de Sueldo Quincenal (S/)</label>
+        <input id="salaryQuincenalInput" type="number" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white">
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Días de Pago de Sueldo al mes</label>
+        <div class="grid grid-cols-2 gap-2">
+          <input id="payDay1" type="number" placeholder="Ej. 15" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white">
+          <input id="payDay2" type="number" placeholder="Ej. 30" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeConfigModal()" class="text-xs text-slate-400 px-3 py-2">Cancelar</button>
+        <button onclick="saveSalaryConfig()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const IPAD_GOAL = 2600;
-    let state = JSON.parse(localStorage.getItem('finanzas_avanzadas')) || {
+    let state = JSON.parse(localStorage.getItem('finanzas_pro_v2')) || {
+      salaryQuincenal: 600,
+      payDays: [15, 30],
+      balances: { yape: 0, sip: 0, lemon: 0, ligo: 0, bn: 0 },
+      tc: { limit: 1500, debt: 0, closeDay: 20, payDay: 5 },
+      yapeCredit: { debt: 0, paidMonths: 0, remainingMonths: 0, payDay: 25 },
+      fixedExpenses: [
+        { name: 'Línea Claro', amount: 47.95 },
+        { name: 'Spotify', amount: 11.90 }
+      ],
       savings: 0,
-      expenses: 0,
-      creditCardDebt: 0,
-      fixedExpenses: [],
       history: []
     };
 
-    let chart = null;
+    function initUI() {
+      document.getElementById('balYape').value = state.balances.yape;
+      document.getElementById('balSip').value = state.balances.sip;
+      document.getElementById('balLemon').value = state.balances.lemon;
+      document.getElementById('balLigo').value = state.balances.ligo;
+      document.getElementById('balBn').value = state.balances.bn;
 
-    function initChart() {
-      const ctx = document.getElementById('balanceChart').getContext('2d');
-      const fixedTotal = state.fixedExpenses.reduce((sum, item) => sum + item.amount, 0);
+      document.getElementById('tcLimitInput').value = state.tc.limit;
+      document.getElementById('tcDebtInput').value = state.tc.debt;
+      document.getElementById('tcCloseDay').value = state.tc.closeDay;
+      document.getElementById('tcPayDay').value = state.tc.payDay;
 
-      chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Ahorros', 'Gastos Varios', 'Gastos Fijos', 'Deuda TC'],
-          datasets: [{
-            data: [state.savings, state.expenses, fixedTotal, state.creditCardDebt],
-            backgroundColor: ['#10b981', '#f43f5e', '#f59e0b', '#dc2626'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12, font: { size: 10 } } }
-          }
-        }
-      });
+      document.getElementById('yapeDebtInput').value = state.yapeCredit.debt;
+      document.getElementById('yapePaidMonths').value = state.yapeCredit.paidMonths;
+      document.getElementById('yapeRemainingMonths').value = state.yapeCredit.remainingMonths;
+      document.getElementById('yapePayDay').value = state.yapeCredit.payDay;
+
+      updateAll();
     }
 
-    function updateUI() {
-      document.getElementById('totalSavings').innerText = `S/ ${state.savings.toFixed(2)}`;
-      document.getElementById('totalExpenses').innerText = `S/ ${state.expenses.toFixed(2)}`;
-      document.getElementById('creditCardDebt').innerText = `S/ ${state.creditCardDebt.toFixed(2)}`;
+    function updateBalances() {
+      state.balances.yape = parseFloat(document.getElementById('balYape').value) || 0;
+      state.balances.sip = parseFloat(document.getElementById('balSip').value) || 0;
+      state.balances.lemon = parseFloat(document.getElementById('balLemon').value) || 0;
+      state.balances.ligo = parseFloat(document.getElementById('balLigo').value) || 0;
+      state.balances.bn = parseFloat(document.getElementById('balBn').value) || 0;
+      updateAll();
+    }
 
-      const fixedTotal = state.fixedExpenses.reduce((sum, item) => sum + item.amount, 0);
-      document.getElementById('totalFixedExpenses').innerText = `S/ ${fixedTotal.toFixed(2)}`;
+    function saveCreds() {
+      state.tc.limit = parseFloat(document.getElementById('tcLimitInput').value) || 0;
+      state.tc.debt = parseFloat(document.getElementById('tcDebtInput').value) || 0;
+      state.tc.closeDay = parseInt(document.getElementById('tcCloseDay').value) || 1;
+      state.tc.payDay = parseInt(document.getElementById('tcPayDay').value) || 1;
 
-      const expenseItems = state.history.filter(h => h.type === 'expense');
-      document.getElementById('expenseCount').innerText = `${expenseItems.length} transacciones`;
+      state.yapeCredit.debt = parseFloat(document.getElementById('yapeDebtInput').value) || 0;
+      state.yapeCredit.paidMonths = parseInt(document.getElementById('yapePaidMonths').value) || 0;
+      state.yapeCredit.remainingMonths = parseInt(document.getElementById('yapeRemainingMonths').value) || 0;
+      state.yapeCredit.payDay = parseInt(document.getElementById('yapePayDay').value) || 1;
 
-      // Barra iPad
+      updateAll();
+    }
+
+    function updateAll() {
+      // 1. Liquidez Total
+      const totalLiquidity = Object.values(state.balances).reduce((a, b) => a + b, 0);
+      document.getElementById('totalLiquidity').innerText = `S/ ${totalLiquidity.toFixed(2)}`;
+
+      // 2. Gastos fijos
+      const totalFixed = state.fixedExpenses.reduce((sum, item) => sum + item.amount, 0);
+      document.getElementById('totalFixedText').innerText = `S/ ${totalFixed.toFixed(2)}`;
+
+      // 3. TC
+      document.getElementById('tcDebtHeader').innerText = `S/ ${state.tc.debt.toFixed(2)}`;
+      const tcUsage = state.tc.limit > 0 ? (state.tc.debt / state.tc.limit) * 100 : 0;
+      document.getElementById('tcBar').style.width = `${Math.min(100, tcUsage)}%`;
+      document.getElementById('tcStatusText').innerText = `Uso: ${tcUsage.toFixed(1)}% | Cierre: Día ${state.tc.closeDay} | Pago: Día ${state.tc.payDay}`;
+
+      // 4. Yape Crédito
+      document.getElementById('yapeDebtHeader').innerText = `S/ ${state.yapeCredit.debt.toFixed(2)}`;
+      document.getElementById('yapeStatusText').innerText = `Pagadas: ${state.yapeCredit.paidMonths} m. | Faltan: ${state.yapeCredit.remainingMonths} m. | Cobro: Día ${state.yapeCredit.payDay}`;
+
+      // 5. Meta iPad
       const progress = Math.min(100, (state.savings / IPAD_GOAL) * 100);
       document.getElementById('progressBar').style.width = `${progress}%`;
-      document.getElementById('targetProgress').innerText = `${progress.toFixed(1)}% de S/ ${IPAD_GOAL}`;
       document.getElementById('targetDetail').innerText = `S/ ${state.savings.toFixed(2)} / S/ ${IPAD_GOAL}`;
 
-      // Lista de gastos fijos
-      const fixedList = document.getElementById('fixedList');
-      fixedList.innerHTML = '';
+      // 6. Lista Gastos Fijos
+      const fixedContainer = document.getElementById('fixedList');
+      fixedContainer.innerHTML = '';
       state.fixedExpenses.forEach((f, idx) => {
-        fixedList.innerHTML += `
+        fixedContainer.innerHTML += `
           <div class="flex justify-between items-center py-1 border-b border-slate-800">
             <span>${f.name}</span>
             <div class="flex items-center gap-2">
               <span class="font-semibold text-amber-400">S/ ${f.amount.toFixed(2)}</span>
-              <button onclick="removeFixed(${idx})" class="text-slate-500 hover:text-red-400">×</button>
+              <button onclick="removeFixedExpense(${idx})" class="text-slate-500 hover:text-red-400">×</button>
             </div>
           </div>`;
       });
 
-      // Historial
-      const historyList = document.getElementById('historyList');
-      historyList.innerHTML = '';
-      [...state.history].reverse().slice(0, 8).forEach(item => {
+      // 7. Historial
+      const historyContainer = document.getElementById('historyList');
+      historyContainer.innerHTML = '';
+      [...state.history].reverse().slice(0, 6).forEach(item => {
         const isSaving = item.type === 'saving';
-        historyList.innerHTML += `
-          <div class="flex justify-between items-center p-2 rounded bg-slate-950 border border-slate-800">
+        historyContainer.innerHTML += `
+          <div class="flex justify-between items-center p-2 rounded bg-slate-950 border border-slate-800/80">
             <span class="text-slate-300">${item.desc}</span>
             <span class="${isSaving ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
               ${isSaving ? '+' : '-'} S/ ${item.amount.toFixed(2)}
@@ -204,13 +308,33 @@
           </div>`;
       });
 
-      // Actualizar gráfica
-      if (chart) {
-        chart.data.datasets[0].data = [state.savings, state.expenses, fixedTotal, state.creditCardDebt];
-        chart.update();
+      // 8. Motor de Diagnóstico (Asistente IA)
+      generateAIAdvice(totalLiquidity, totalFixed);
+
+      localStorage.setItem('finanzas_pro_v2', JSON.stringify(state));
+    }
+
+    function generateAIAdvice(liquidity, fixedExpenses) {
+      const today = new Date().getDate();
+      const totalDeudaInmediata = state.tc.debt + state.yapeCredit.debt;
+      const adviceEl = document.getElementById('aiAdvice');
+
+      let advice = "";
+
+      if (liquidity < fixedExpenses) {
+        advice = `⚠️ <b>Alerta de liquidez:</b> Tu saldo total disponible (S/ ${liquidity.toFixed(2)}) no cubre tus gastos fijos mensuales (S/ ${fixedExpenses.toFixed(2)}). Prioriza pagar Claro y Spotify antes de hacer cualquier abono al iPad.`;
+      } else if (state.tc.debt > 0 && Math.abs(today - state.tc.payDay) <= 4) {
+        advice = `🚨 <b>Atención Tarjeta de Crédito:</b> Estás muy cerca del día límite de pago (Día ${state.tc.payDay}). Cancela de inmediato los S/ ${state.tc.debt.toFixed(2)} usando tu saldo de BCP o Yape para evitar intereses compensatorios.`;
+      } else if (state.yapeCredit.debt > 0 && Math.abs(today - state.yapeCredit.payDay) <= 3) {
+        advice = `📅 <b>Cobro Yape cercano:</b> Tu fecha de cuota es el día ${state.yapeCredit.payDay}. Asegúrate de tener saldo en la billetera Yape antes de ese día. Te faltan ${state.yapeCredit.remainingMonths} cuotas por liquidar.`;
+      } else if (totalDeudaInmediata === 0) {
+        advice = `✅ <b>Finanzas limpias:</b> No tienes deudas urgentes registradas. De tu quincena de S/ ${state.salaryQuincenal}, puedes destinar el 40% (S/ 240.00) directamente a tu fondo del iPad Pro M1.`;
+      } else {
+        const libre = liquidity - fixedExpenses;
+        advice = `💡 <b>Plan del momento:</b> Tienes S/ ${liquidity.toFixed(2)} en cuentas. Cubriendo tus fijos te quedan S/ ${libre.toFixed(2)} libres. Se recomienda abonar el 60% a tu deuda de TC y reservar el resto para comida y transporte de la universidad.`;
       }
 
-      localStorage.setItem('finanzas_avanzadas', JSON.stringify(state));
+      adviceEl.innerHTML = advice;
     }
 
     function addTransaction() {
@@ -221,28 +345,11 @@
       if (!desc || isNaN(amount) || amount <= 0) return;
 
       if (type === 'saving') state.savings += amount;
-      else state.expenses += amount;
 
       state.history.push({ desc, amount, type, date: new Date().toISOString() });
       document.getElementById('transDesc').value = '';
       document.getElementById('transAmount').value = '';
-      updateUI();
-    }
-
-    function updateCreditCard(action) {
-      const amount = parseFloat(document.getElementById('tcAmount').value);
-      if (isNaN(amount) || amount <= 0) return;
-
-      if (action === 'charge') {
-        state.creditCardDebt += amount;
-        state.history.push({ desc: 'Compra Tarjeta Crédito', amount, type: 'expense', date: new Date().toISOString() });
-      } else {
-        state.creditCardDebt = Math.max(0, state.creditCardDebt - amount);
-        state.history.push({ desc: 'Abono Deuda TC', amount, type: 'saving', date: new Date().toISOString() });
-      }
-
-      document.getElementById('tcAmount').value = '';
-      updateUI();
+      updateAll();
     }
 
     function addFixedExpense() {
@@ -254,25 +361,44 @@
       state.fixedExpenses.push({ name, amount });
       document.getElementById('fixedName').value = '';
       document.getElementById('fixedAmount').value = '';
-      updateUI();
+      updateAll();
     }
 
-    function removeFixed(index) {
-      state.fixedExpenses.splice(index, 1);
-      updateUI();
+    function removeFixedExpense(idx) {
+      state.fixedExpenses.splice(idx, 1);
+      updateAll();
     }
 
-    function resetAllData() {
-      if (confirm("¿Deseas reiniciar todos los registros y balances?")) {
-        state = { savings: 0, expenses: 0, creditCardDebt: 0, fixedExpenses: [], history: [] };
-        updateUI();
+    function openConfigModal() {
+      document.getElementById('salaryQuincenalInput').value = state.salaryQuincenal;
+      document.getElementById('payDay1').value = state.payDays[0] || 15;
+      document.getElementById('payDay2').value = state.payDays[1] || 30;
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    function saveSalaryConfig() {
+      state.salaryQuincenal = parseFloat(document.getElementById('salaryQuincenalInput').value) || 600;
+      state.payDays = [
+        parseInt(document.getElementById('payDay1').value) || 15,
+        parseInt(document.getElementById('payDay2').value) || 30
+      ];
+      document.getElementById('salaryDisplay').innerText = `Ingreso quincenal: S/ ${state.salaryQuincenal.toFixed(2)} | Pagos: Día ${state.payDays[0]} y ${state.payDays[1]}`;
+      closeConfigModal();
+      updateAll();
+    }
+
+    function resetData() {
+      if (confirm("¿Deseas reiniciar todos los saldos y deudas?")) {
+        localStorage.removeItem('finanzas_pro_v2');
+        location.reload();
       }
     }
 
-    window.onload = () => {
-      initChart();
-      updateUI();
-    };
+    window.onload = initUI;
   </script>
 </body>
 </html>
